@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [err, setErr] = useState(false);
+  const [errMessage, setErrMessage] = useState("");
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -21,6 +22,7 @@ const Register = () => {
 
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
+      console.log(res)
       console.log(res.user.uid)
 
       const storageRef = ref(storage, "images/rivers.jpg");
@@ -62,6 +64,8 @@ const Register = () => {
 
       
     } catch (err) {
+      setErrMessage(err.message)
+
       setErr(true);
     }
   };
@@ -80,7 +84,9 @@ const Register = () => {
             <span>Add an avatar</span>
           </label>
           <button>Sign Up</button>
-          {err && <span>Something Went Wrong</span>}
+          {err && <span style={{backgroundColor:"#ff4545" ,paddingLeft:14,paddingRight:14, borderRadius:8 , color:"white"}}>
+            {errMessage.slice( 10,errMessage.length )}
+            </span>}
         </form>
         <p>Do you have an account ? Login</p>
       </div>
