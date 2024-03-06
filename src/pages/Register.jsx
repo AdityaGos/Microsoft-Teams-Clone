@@ -22,47 +22,37 @@ const Register = () => {
 
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(res)
-      console.log(res.user.uid)
+      const date = new Date().getTime();
+      const storageRef = ref(storage, `${displayName + date}`);;
+      console.log('after creating storageRef')
 
-      const storageRef = ref(storage, "images/rivers.jpg");
-
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        (error) => {
-          setErr(true);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL) => {
-            await updateProfile(res.user,{
-
+      await uploadBytesResumable(storageRef, file).then(() => {
+        getDownloadURL(storageRef).then(async (downloadURL) => {
+          console.log('downloadURL', downloadURL)
+          try {
+            //Update profile
+            await updateProfile(res.user, {
               displayName,
               photoURL: downloadURL,
             });
-            console.log(`inside function ${res.user.uid} `)
-            //          users = collection name 
-            //          unique id =res.user.uid
-            await setDoc(doc(db,"users",res.user.uid),{
-              uid:res.user.uid,
-              email,
+            //create user on firestore
+            await setDoc(doc(db, "users", res.user.uid), {
+              uid: res.user.uid,
               displayName,
+              email,
               photoURL: downloadURL,
-              });
+            });
 
-             await setDoc(doc(db,"userChats",res.user.uid),{
-              
-             })
-              navigate("/")
-           
-
-
-          });
-       
-        }
-      );
-
-      
+            //create empty user chats on firestore
+            await setDoc(doc(db, "userChats", res.user.uid), {});
+            navigate("/");
+          } catch (err) {
+            console.log(err);
+            setErr(true);
+            // setLoading(false);
+          }
+        });
+      });
     } catch (err) {
       setErrMessage(err.message)
 
