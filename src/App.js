@@ -30,7 +30,7 @@ function App() {
           }
         />
         <Route path="/login" element={<Login />} />
-        <Route path="/Register" element={<Register />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );
