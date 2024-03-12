@@ -33,13 +33,14 @@ const Search = () => {
     {
       const self = this 
       const arg = arguments
-      clearTimeout(timerContext);
+      if(timerContext) { clearTimeout(timerContext) }
       timerContext=setTimeout(() => { fnc.apply(self, arg) }, delay);
     }
   }
   console.log('userData'+JSON.stringify(searchedUsers))
 
   const handleSearch = async (searchuser) => {
+
     console.log('inside handleSearch')
     console.log('searchQuery'+ searchuser)
     const q = query(
@@ -112,16 +113,33 @@ const Search = () => {
      setUsername('')
     
   }
-  useEffect(()=>{
-    // console.log('inside useEffect')
-  if (username.trim().length > 0) {
-    // If the search string is non-empty, debounce the search function
-    debouncedSearch(username);
-    // handleSearch(username)
-  }
-},[username])
 
-  const debouncedSearch= useCallback(debounce(handleSearch,500),[])
+//   useEffect(()=>{
+//     // console.log('inside useEffect')
+//   if (username.trim().length > 0) {
+//     // If the search string is non-empty, debounce the search function
+//     debouncedSearch(username);
+//     // handleSearch(username)
+//   }
+// },[username])
+
+  
+const debouncedSearch= useCallback(debounce(handleSearch,500),[])
+
+  const handleChange = (event) => {
+    setUsername(event.target.value);
+//  setSearchedUsers([]);
+    if (event.target.value.trim() === "") {
+     
+      console.log("Clean");
+      setSearchedUsers([]); 
+      return;
+    } 
+   
+      debouncedSearch(event.target.value);
+  
+    // debouncedSearch(searchTerm);
+  };
 
   return (
     <div className="search">
@@ -129,7 +147,7 @@ const Search = () => {
         <input
           type="text"
           placeholder="Search user..."
-          onChange={(e) => { setUsername(e.target.value); } }
+          onChange={handleChange }
           value={username}
         />
         {username && (
