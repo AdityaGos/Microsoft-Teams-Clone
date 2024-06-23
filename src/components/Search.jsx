@@ -14,6 +14,7 @@ import {
 import Closed from "../img/clear-svgrepo-com.svg";
 import { db } from "../firebase";
 import { AuthContext } from "../context/AuthContext";
+import { ChatContext } from "../context/ChatContext";
 // import {debounce} from 'lodash';
 
 
@@ -25,10 +26,12 @@ const Search = () => {
   const [searchedUsers, setSearchedUsers] = useState([]);
   const [err, setErr] = useState("");
 
+  const { dispatch} = useContext(ChatContext)
+
   const debounce =(fnc,delay=300)=>
   {
     let timerContext
-    console.log('debounce ')
+    // console.log('debounce ')
     return function()
     {
       const self = this 
@@ -37,12 +40,12 @@ const Search = () => {
       timerContext=setTimeout(() => { fnc.apply(self, arg) }, delay);
     }
   }
-  console.log('userData'+JSON.stringify(searchedUsers))
+  // console.log('userData'+JSON.stringify(searchedUsers))
 
   const handleSearch = async (searchuser) => {
 
-    console.log('inside handleSearch')
-    console.log('searchQuery'+ searchuser)
+    // console.log('inside handleSearch')
+    // console.log('searchQuery'+ searchuser)
     const q = query(
       collection(db, "users"),
       where("displayName", ">=", searchuser.toLowerCase()),
@@ -77,13 +80,11 @@ const Search = () => {
     console.log('data after clicking ' +userData.uid)
      try{
       const res = await getDoc(doc(db, "chats",combinedUsersId))
+      console.log('res')
+      console.log(res.data())
 
       if(!res.exists())
       {
-        const userChatRef = doc(db,"chats",combinedUsersId)
-        // await setDoc(doc,(db,"chats",combinedUsersId), {message:[]})
-        await setDoc(userChatRef,{message:[]})
-        console.log('after creating new chat doc')
 
          updateDoc(doc(db,"userChats",currentUser.uid),
         {
@@ -104,24 +105,17 @@ const Search = () => {
           },
           [combinedUsersId+'.date']:serverTimestamp()
         })
-        
+       
       }
+
+      dispatch({type:'CHANGE_USER', payload:userData})
+
      }catch(e){console.log(e) }
 
      setSearchedUsers([])
-     console.log('reached here to empty Username - HandleSelect')
      setUsername('')
     
   }
-
-//   useEffect(()=>{
-//     // console.log('inside useEffect')
-//   if (username.trim().length > 0) {
-//     // If the search string is non-empty, debounce the search function
-//     debouncedSearch(username);
-//     // handleSearch(username)
-//   }
-// },[username])
 
   
 const debouncedSearch= useCallback(debounce(handleSearch,500),[])
