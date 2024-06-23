@@ -19,6 +19,7 @@ export const ChatContextProvider = ({ children }) => {
     switch (action.type)
     {
       case "CHANGE_USER":
+        console.log('change user')
         return {
           user:action.payload,
           chatId:currentUser.uid >action.payload.uid
@@ -26,6 +27,13 @@ export const ChatContextProvider = ({ children }) => {
            : action.payload.uid+ currentUser.uid
 
         }
+
+        case "USER_LOGOUT":
+          console.log("user logout called")
+          return{
+            user:{},
+            chatId:null,
+          }
       default:
         return state
     }
